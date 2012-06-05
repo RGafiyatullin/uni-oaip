@@ -19,6 +19,7 @@ namespace ArithExpr {
 		Expression* process( Token* tokens, int leftMost, int rightMost );
 
 		void ensure_is_operand( Token* tokens, int pos );
+		void ensure_is_operator( Token* tokens, int pos );
 	};
 }}}
 

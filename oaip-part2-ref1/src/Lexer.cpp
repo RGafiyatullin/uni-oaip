@@ -35,12 +35,17 @@ namespace ArithExpr {
 		TokenType t = tokens[pos].type;
 		if ( t != tok_Operand_Literal && t != tok_Operand_Binding ) {
 			char* buf = new char[128];
-			sprintf(buf, "syntax error: token #%d is expected to be literal/binding", pos);
+			sprintf(buf, "syntax error: token #%d is expected to be a literal or a binding", pos);
 			throw buf;
 		}
 	}
 	void Lexer::ensure_is_operator( Token* tokens, int pos ) {
-
+		TokenType t = tokens[pos].type;
+		if ( t == tok_Operand_Literal || t == tok_Operand_Binding ) {
+			char* buf = new char[128];
+			sprintf(buf, "syntax error: token #%d is expected to be an operator", pos);
+			throw buf;
+		}
 	}
 
 
@@ -52,8 +57,9 @@ namespace ArithExpr {
 			Expression* e = new Expression();
 			e->set_left_operand( new Value( tokens[leftMost].symbol ) );
 			e->set_right_operand( new Value( tokens[rightMost].symbol ) );
-			
+			return e;
 		}
+		
 	}
 
 

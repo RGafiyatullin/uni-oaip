@@ -11,7 +11,7 @@ namespace ArithExpr {
 		virtual ~IOperand();
 	};
 
-	class Value {
+	class Value : public IOperand {
 	private:
 		char _chars[128];
 	public:
