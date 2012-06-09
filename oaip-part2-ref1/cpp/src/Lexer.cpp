@@ -20,18 +20,18 @@ namespace ArithExpr {
 
 	Lexer::Lexer() {}
 	Lexer::~Lexer() {}
-	Expression* Lexer::analyze( List<Token>* tokenStream ) {
+	Expression* Lexer::analyze( List<Token>* tokenStream ) const {
 		int tokenCount = tokenStream->count();
 		Token* tokens = new Token[tokenCount];
 		tokenStream->to_buffer(tokens);
 
-		Expression* expr = process( tokens, 0, tokenCount - 1 );
+		Expression* expr = process( NULL, tokens, 0, tokenCount - 1 );
 
 		delete [] tokens;
 		return expr;
 	}
 
-	void Lexer::ensure_is_operand( Token* tokens, int pos ) {
+	void Lexer::ensure_is_operand( Token* tokens, int pos ) const {
 		TokenType t = tokens[pos].type;
 		if ( t != tok_Operand_Literal && t != tok_Operand_Binding ) {
 			char* buf = new char[128];
@@ -39,7 +39,7 @@ namespace ArithExpr {
 			throw buf;
 		}
 	}
-	void Lexer::ensure_is_operator( Token* tokens, int pos ) {
+	void Lexer::ensure_is_operator( Token* tokens, int pos ) const {
 		TokenType t = tokens[pos].type;
 		if ( t == tok_Operand_Literal || t == tok_Operand_Binding ) {
 			char* buf = new char[128];
@@ -48,18 +48,43 @@ namespace ArithExpr {
 		}
 	}
 
+	int Lexer::find_closing_parenthesis( Token* tokens, int first, int rightMost ) const {
+		assert(tokens[first].type == tok_ParenthesisOpen);
 
-	Expression* Lexer::process( Token* tokens, int leftMost, int rightMost ) {
-		if ( rightMost - leftMost == 2 ) {
-			ensure_is_operand( tokens, leftMost );
-			ensure_is_operand( tokens, rightMost );
-			ensure_is_operator( tokens, leftMost + 1 );
-			Expression* e = new Expression();
-			e->set_left_operand( new Value( tokens[leftMost].symbol ) );
-			e->set_right_operand( new Value( tokens[rightMost].symbol ) );
-			return e;
+		int depth = 1;
+		for ( int i = first + 1; i <= rightMost; i++ ) {
+			Token tok = tokens[i];
+			switch (tok.type) {
+				case tok_ParenthesisOpen:
+					depth++;
+					break;
+				case tok_ParenthesisClose:
+					depth--;
+					break;
+			}
+			if ( depth < 0 ) {
+				char* buf = new char[128];
+				sprintf(buf, "syntax error: token #%d an unmatched closing parenthesis", i);
+				throw buf;
+			}
+			if ( depth == 0 ) {
+				return i;
+			}
 		}
-		
+		return -1;
+	}
+
+	Expression* Lexer::process( Expression* leftExpression, Token* tokens, int leftMost, int rightMost ) {
+		for ( int tokenPos = 0; tokenPos <= rightMost; tokenPos++ ) {
+			Token first = tokens[tokenPos];
+			switch ( first.type ) {
+				case tok_ParenthesisOpen:
+					int closingPos = find_closing_parenthesis( tokens, first, rightMost );
+					int openingPos = tokenPos;
+					
+					break;
+			}
+		}
 	}
 
 

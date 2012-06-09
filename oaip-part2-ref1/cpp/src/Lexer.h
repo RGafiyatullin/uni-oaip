@@ -16,10 +16,14 @@ namespace ArithExpr {
 		virtual ~Lexer();
 
 		Expression* analyze( List<Token>* tokens );
-		Expression* process( Token* tokens, int leftMost, int rightMost );
 
-		void ensure_is_operand( Token* tokens, int pos );
-		void ensure_is_operator( Token* tokens, int pos );
+	private:
+		Expression* process( Expression* leftExpression, Token* tokens, int leftMost, int rightMost ) const;
+
+		void ensure_is_operand( Token* tokens, int pos ) const;
+		void ensure_is_operator( Token* tokens, int pos ) const;
+
+		int find_closing_parenthesis( Token* tokens, int first, int rightMost ) const;
 	};
 }}}
 
