@@ -20,12 +20,16 @@ unit Tokenizer;
 
 		type TToken = class
 		public
+			Priority : integer;
 			TokenType : TType;
 			Position : integer;
 			Original : string;
+
+			constructor CreateFromAttributes( p: integer ; t: TType; s: string );
 		end;
 
 		type TTokenList = specialize List.TList<TToken>;
+		type TTokenListIterator = specialize List.TConstIterator<TToken>;
 		
 		type TTokenizer = class
 		private 
@@ -46,6 +50,25 @@ unit Tokenizer;
 		end;
 
 	implementation
+
+		constructor TToken.CreateFromAttributes( p: integer ; t: TType; s: string );
+		begin
+			Original := s;
+			TokenType := t;
+			Position := p;
+			case t of
+				TType.literal, TType.identifier:
+					Priority := 0;
+				TType.op_plus, TType.op_minus:
+					Priority := 1;
+				TType.op_mult, TType.op_div:
+					Priority := 2;
+				TType.op_pow:
+					Priority := 3;
+				else
+					Priority := -1;
+			end;
+		end;
 
 		constructor TTokenizer.CreateFromArgs;
 		var chars: TCharList;
@@ -109,7 +132,8 @@ unit Tokenizer;
 				token.Original := token.Original + chIt.GetNext;
 			end;
 
-			toks.PushBack( token );
+			toks.PushBack( TToken.CreateFromAttributes( token.Position, token.TokenType, token.Original ) );
+			token.Free;
 		end;
 
 		procedure TTokenizer.ProcessNumericLiteral( chIt : TCharListIterator; toks : TTokenList );
@@ -124,14 +148,14 @@ unit Tokenizer;
 				token.Original := token.Original + chIt.GetNext;
 			end;
 
-			toks.PushBack( token );
+			toks.PushBack( TToken.CreateFromAttributes( token.Position, token.TokenType, token.Original ) );
+			token.Free;
 		end;
 
 		function TTokenizer.ProcessChars( chars : TCharList ) : TTokenList;
 		var toks: TTokenList;
 		var chIt: TCharListIterator;
 		var currentChar: char;
-		var opToken: TToken; 
 		begin
 			toks := TTokenList.Create;
 			chIt := chars.GetConstIterator;
@@ -141,43 +165,30 @@ unit Tokenizer;
 				case currentChar of
 					'1'..'9','0': ProcessNumericLiteral( chIt, toks );
 					'a'..'z','A'..'Z': ProcessIdentifier( chIt, toks );
+					'(',')': begin
+						WriteLn('Processing parenthesis token at ', chIt.GetPosition);
+						case chIt.GetNext of
+							'(': toks.PushBack( TToken.CreateFromAttributes( chIt.GetPosition, TType.parenthesis_l, '(' ) );
+							')': toks.PushBack( TToken.CreateFromAttributes( chIt.GetPosition, TType.parenthesis_r, ')' ) );
+						end;
+					end;
 					'*','/','+','-','^': begin
 						WriteLn('Processing operation token at ', chIt.GetPosition);
-						case chIt.Peek of
+						case chIt.GetNext of
 							'*': begin
-								opToken := TToken.Create;
-								opToken.Position := chIt.GetPosition;
-								opToken.TokenType := TType.op_mult;
-								opToken.Original := chIt.GetNext;
-								toks.PushBack(opToken);
+								toks.PushBack( TToken.CreateFromAttributes( chIt.GetPosition, TType.op_mult, '*' ) );
 							end; 
 							'/': begin
-								opToken := TToken.Create;
-								opToken.Position := chIt.GetPosition;
-								opToken.TokenType := TType.op_div;
-								opToken.Original := chIt.GetNext;
-								toks.PushBack(opToken);
+								toks.PushBack( TToken.CreateFromAttributes( chIt.GetPosition, TType.op_div, '/' ) );
 							end; 
 							'-': begin
-								opToken := TToken.Create;
-								opToken.Position := chIt.GetPosition;
-								opToken.TokenType := TType.op_minus;
-								opToken.Original := chIt.GetNext;
-								toks.PushBack(opToken);
+								toks.PushBack( TToken.CreateFromAttributes( chIt.GetPosition, TType.op_minus, '-' ) );
 							end;
 							'+': begin
-								opToken := TToken.Create;
-								opToken.Position := chIt.GetPosition;
-								opToken.TokenType := TType.op_plus;
-								opToken.Original := chIt.GetNext;
-								toks.PushBack(opToken);
+								toks.PushBack( TToken.CreateFromAttributes( chIt.GetPosition, TType.op_plus, '+' ) );
 							end;
 							'^': begin
-								opToken := TToken.Create;
-								opToken.Position := chIt.GetPosition;
-								opToken.TokenType := TType.op_pow;
-								opToken.Original := chIt.GetNext;
-								toks.PushBack(opToken);
+								toks.PushBack( TToken.CreateFromAttributes( chIt.GetPosition, TType.op_pow, '^' ) );
 							end;
 						end
 					end;
@@ -193,7 +204,6 @@ unit Tokenizer;
 		end;
 
 		function TTokenizer.GetTokens : TTokenList;
-		var toks : TTokenList;
 		begin
 			Result := _tokens;
 		end;

@@ -1,14 +1,14 @@
 
-all: bin/hi
+all: bin/parser
 
 
 bin:
 	mkdir -p bin
 
-bin/hi: bin src/*.pas
-	fpc -obin/hi ./src/hi.pas
+bin/parser: bin src/*.pas
+	fpc -obin/parser ./src/parser.pas
 
 clean:
-	rm -f bin/hi
+	rm -f bin/parser
 	rm -f bin/*.o
 	rm -f bin/*.ppu

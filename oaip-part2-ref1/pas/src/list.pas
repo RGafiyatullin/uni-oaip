@@ -75,6 +75,7 @@ unit List;
 
 		function TConstIterator.HasNext : boolean;
 		begin
+			// WriteLn('Iterator.HasNext -> ', _currentNode <> nil);
 			Result := _currentNode <> nil;
 		end;
 
@@ -176,6 +177,7 @@ unit List;
 				end else begin
 					node := _Head;
 					_Head := _Head.GetNext;
+					_Head.SetHead;
 				end;
 				Result := node.GetData;
 				_Count := _Count - 1;
@@ -196,6 +198,7 @@ unit List;
 				end else begin
 					node := _Tail;
 					_Tail := _Tail.GetPrev;
+					_Tail.SetTail;
 				end;
 				Result := node.GetData;
 				_Count := _Count - 1;
