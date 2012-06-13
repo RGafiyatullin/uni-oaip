@@ -1,5 +1,5 @@
 
-all: bin/parser bin/trees
+all: bin/parser bin/trees bin/exam
 
 
 bin:
@@ -13,6 +13,8 @@ bin/trees: bin src/*.pas
 
 clean:
 	rm -f bin/parser
+	rm -f bin/trees
+	rm -f bin/exam
 	rm -f bin/*.o
 	rm -f bin/*.ppu
 
@@ -33,3 +35,7 @@ parser-tests: bin/parser
 	bin/parser '((t+v-a/b)+(s-z^d))*k'
 	bin/parser 'k*(m+n*j)^i-v/u'
 	bin/parser '(d-c/x^e)*z+f*e'
+
+
+bin/exam:
+	fpc -obin/exam ./exam.src/exam.pas
