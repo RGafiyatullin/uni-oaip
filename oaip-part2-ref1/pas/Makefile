@@ -17,7 +17,7 @@ clean:
 	rm -f bin/*.ppu
 
 
-parser-tests:
+parser-tests: bin/parser
 	bin/parser 'x^(y+z*s)*d-c/s'
 	bin/parser 'a+c-e^(x-y/z)*s'
 	bin/parser 'a-b^d*(e+s/d)-w'
