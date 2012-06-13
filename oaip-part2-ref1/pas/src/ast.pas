@@ -69,12 +69,14 @@ unit AST;
 
 		procedure TTree.PrintParenthesised;
 		begin
+			Write('Parenthesised infix form: ');
 			_Root.PrintParenthesised;
 			WriteLn('');
 		end;
 
 		procedure TTree.PrintReversePolish;
 		begin
+			Write('Reverse polish form:     ');
 			_Root.PrintReversePolish;
 			WriteLn('');
 		end;
@@ -191,7 +193,7 @@ unit AST;
 				toks.PushBack( tok );
 			end;
 			toks.PopBack;
-			WriteLn('Fetched ', toks.GetCount, ' tokens into subexpression');
+			//WriteLn('Fetched ', toks.GetCount, ' tokens into subexpression');
 			Result := toks;
 		end;
 

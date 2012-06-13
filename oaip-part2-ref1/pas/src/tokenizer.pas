@@ -123,7 +123,7 @@ unit Tokenizer;
 		procedure TTokenizer.ProcessIdentifier( chIt : TCharListIterator; toks : TTokenList );
 		var token : TToken;
 		begin
-			WriteLn('Processing identifier at ', chIt.GetPosition);
+			//WriteLn('Processing identifier at ', chIt.GetPosition);
 			token := TToken.Create;
 			token.TokenType := TType.identifier;
 			token.Position := chIt.GetPosition;
@@ -139,7 +139,7 @@ unit Tokenizer;
 		procedure TTokenizer.ProcessNumericLiteral( chIt : TCharListIterator; toks : TTokenList );
 		var token : TToken;
 		begin
-			WriteLn('Processing numeric literal at ', chIt.GetPosition);
+			//WriteLn('Processing numeric literal at ', chIt.GetPosition);
 			token := TToken.Create;
 			token.TokenType := TType.literal;
 			token.Position := chIt.GetPosition;
@@ -166,14 +166,14 @@ unit Tokenizer;
 					'1'..'9','0': ProcessNumericLiteral( chIt, toks );
 					'a'..'z','A'..'Z': ProcessIdentifier( chIt, toks );
 					'(',')': begin
-						WriteLn('Processing parenthesis token at ', chIt.GetPosition);
+						//WriteLn('Processing parenthesis token at ', chIt.GetPosition);
 						case chIt.GetNext of
 							'(': toks.PushBack( TToken.CreateFromAttributes( chIt.GetPosition, TType.parenthesis_l, '(' ) );
 							')': toks.PushBack( TToken.CreateFromAttributes( chIt.GetPosition, TType.parenthesis_r, ')' ) );
 						end;
 					end;
 					'*','/','+','-','^': begin
-						WriteLn('Processing operation token at ', chIt.GetPosition);
+						//WriteLn('Processing operation token at ', chIt.GetPosition);
 						case chIt.GetNext of
 							'*': begin
 								toks.PushBack( TToken.CreateFromAttributes( chIt.GetPosition, TType.op_mult, '*' ) );
